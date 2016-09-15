@@ -139,7 +139,6 @@
 
 	function Del()
 	{
-		global $conn;
 		global $propid;
 		
 		?>

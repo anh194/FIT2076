@@ -59,7 +59,6 @@
 			}
 			
 			oci_free_statement($propStmt);
-			//oci_free_statement($typeStmt);
 			oci_close($conn);
 			
 		?>

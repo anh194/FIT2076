@@ -30,8 +30,8 @@
 				echo "<td>$row[FEAT_NAME]</td>";
 				echo "<td>$row[FEAT_DESCRIPTION]</td>";
 				
-				echo "<td><a href = \"PropFeatModify.php?featid=$row[FEAT_ID]&Action=Update\">Edit</a></td>";
-				echo "<td><a href = \"PropFeatModify.php?featid=$row[FEAT_ID]&Action=Delete\">Delete </a></td>";
+				echo "<td><a href = \"FeatModify.php?featid=$row[FEAT_ID]&Action=Update\">Edit</a></td>";
+				echo "<td><a href = \"FeatModify.php?featid=$row[FEAT_ID]&Action=Delete\">Delete </a></td>";
 				echo "</tr>";
 			}
 		?>

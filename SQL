@@ -1,0 +1,161 @@
+
+/*---- DROP DATABASE ----*/
+
+DROP TABLE Feature CASCADE CONSTRAINTS PURGE;
+DROP TABLE Customer CASCADE CONSTRAINTS PURGE;
+DROP TABLE Property CASCADE CONSTRAINTS PURGE;
+DROP TABLE Photo CASCADE CONSTRAINTS PURGE;
+DROP TABLE PropertyType CASCADE CONSTRAINTS PURGE;
+DROP TABLE PropertyFeature CASCADE CONSTRAINTS PURGE;
+DROP TABLE Listing CASCADE CONSTRAINTS PURGE;
+
+DROP SEQUENCE feat_seq;
+DROP SEQUENCE cust_seq;
+DROP SEQUENCE prop_seq;
+DROP SEQUENCE photo_seq;
+DROP SEQUENCE ptype_seq;
+DROP SEQUENCE list_seq;
+
+/*---- CREATE SEQUENCES ----*/
+
+CREATE SEQUENCE feat_seq;
+CREATE SEQUENCE cust_seq;
+CREATE SEQUENCE prop_seq;
+CREATE SEQUENCE photo_seq;
+CREATE SEQUENCE ptype_seq;
+CREATE SEQUENCE list_seq;
+
+/*---- CREATE TABLES ----*/
+
+CREATE TABLE Feature
+(
+  feat_id INTEGER,
+  feat_name VARCHAR(50) NOT NULL,
+  feat_description VARCHAR(255),
+  CONSTRAINT PK_Feature PRIMARY KEY (feat_id)
+);
+
+CREATE TABLE PropertyType
+(
+  ptype_id INTEGER,
+  ptype_name VARCHAR(50) NOT NULL,
+  CONSTRAINT PK_PropertyType PRIMARY KEY (ptype_id)
+);
+
+CREATE TABLE Customer
+(
+  cust_id INTEGER,
+  cust_fname VARCHAR(50) NOT NULL,
+  cust_lname VARCHAR(50) NOT NULL,
+  cust_homephone VARCHAR(20),
+  cust_mobilephone VARCHAR(20),
+  cust_email VARCHAR(50),
+  cust_mailinglist CHAR(1) NOT NULL,
+  cust_country VARCHAR(50),
+  cust_state VARCHAR(50),
+  cust_city VARCHAR(50),
+  cust_postcode VARCHAR(10),
+  cust_street VARCHAR(50),
+  CONSTRAINT PK_Customer PRIMARY KEY (cust_id)
+);
+
+CREATE TABLE Property
+(
+  prop_id INTEGER,
+  prop_country VARCHAR(50),
+  prop_state VARCHAR(50),
+  prop_city VARCHAR(50),
+  prop_postcode VARCHAR(50),
+  prop_street VARCHAR(50),
+  prop_type INTEGER,
+  prop_bedrooms NUMBER(2),
+  prop_bathrooms NUMBER(2),
+  prop_description VARCHAR(255),
+  CONSTRAINT PK_Property PRIMARY KEY (prop_id),
+  CONSTRAINT FK_Prop_PropType FOREIGN KEY (prop_type) REFERENCES PropertyType
+);
+
+CREATE TABLE Photo
+(
+  photo_id INTEGER,
+  photo_property INTEGER NOT NULL,
+  photo_path VARCHAR(255) NOT NULL,
+  CONSTRAINT PK_Photo PRIMARY KEY (photo_id),
+  CONSTRAINT FK_Photo_PhotoProperty FOREIGN KEY (photo_property) REFERENCES Property
+  ON DELETE CASCADE
+);
+
+CREATE TABLE PropertyFeature
+(
+  pf_property INTEGER,
+  pf_feature INTEGER,
+  CONSTRAINT PK_PropertyFeatures PRIMARY KEY (pf_property, pf_feature),
+  CONSTRAINT FK_PF_Property FOREIGN KEY (pf_property) REFERENCES Property ON DELETE CASCADE,
+  CONSTRAINT FK_PF_Feature FOREIGN KEY (pf_feature) REFERENCES Feature ON DELETE CASCADE
+);
+
+CREATE TABLE Listing
+(
+  list_id INTEGER,
+  list_seller INTEGER NOT NULL,
+  list_buyer INTEGER,
+  list_property INTEGER NOT NULL,
+  list_price INTEGER,
+  list_sellprice INTEGER,
+  list_date DATE NOT NULL,
+  list_selldate DATE,
+  CONSTRAINT PK_LISTING PRIMARY KEY (list_id),
+  CONSTRAINT FK_List_Seller FOREIGN KEY (list_seller) REFERENCES Customer ON DELETE CASCADE,
+  CONSTRAINT FK_List_Buyer FOREIGN KEY (list_buyer) REFERENCES Customer ON DELETE CASCADE,
+  CONSTRAINT FK_List_Property FOREIGN KEY (list_property) REFERENCES Property ON DELETE CASCADE
+);
+
+/*---- INSERT TEST DATA ----*/
+
+INSERT INTO Feature VALUES (feat_seq.nextval, 'Pool', 'Large');
+INSERT INTO Feature VALUES (feat_seq.nextval, 'Garage', 'Double');
+INSERT INTO Feature VALUES (feat_seq.nextval, 'Pool', 'Small');
+INSERT INTO Feature VALUES (feat_seq.nextval, 'Air Conditioning', NULL);
+INSERT INTO Feature VALUES (feat_seq.nextval, 'Close to Schools', NULL);
+INSERT INTO Feature VALUES (feat_seq.nextval, 'Central Heating', NULL);
+INSERT INTO Feature VALUES (feat_seq.nextval, 'Garden', 'Large fenced off garden with covered veranda');
+INSERT INTO Feature VALUES (feat_seq.nextval, 'Walk in pantry', NULL);
+
+INSERT INTO PropertyType VALUES (ptype_seq.nextval,'House');
+INSERT INTO PropertyType VALUES (ptype_seq.nextval,'Townhouse');
+INSERT INTO PropertyType VALUES (ptype_seq.nextval,'Apartment');
+
+INSERT INTO Property VALUES (prop_seq.nextval,'Australia', 'Victoria', 'Clayton', '3810', '12 Chapel Street',1,2,1,'Magnificent property');
+INSERT INTO Property VALUES (prop_seq.nextval,'France', 'New South Wales', 'Caulfield', '3402', '372 Graham Road',3,4,2,'Really quite poor property');
+INSERT INTO Property VALUES (prop_seq.nextval,'England', 'Northern Territory', 'Keysborough', '6829', '83 Gabrone Crescent',2,'6','4','"10/10" - IGN');
+INSERT INTO Property VALUES (prop_seq.nextval,'Italy', 'South Australia', 'Mentone', '3123', '16 16th Avenue',1,3,2,'9/10 cats prefer this property');
+
+
+INSERT INTO Customer Values (cust_seq.nextval, 'Elton', 'John', '0407986540','0403239827','john@doe.com','y','Australia','Victoria','Pakenham','23133','1234 Raymond Walk');
+INSERT INTO Customer Values (cust_seq.nextval, 'Richard', 'Prior', '0404037293','0407239867','richard@hotmail.com', 'y','United States','Florida','Clayton','2355','16 Chapel Street');
+INSERT INTO Customer Values (cust_seq.nextval, 'Louis', 'CK', '0407986540','0403239827','louis@bagofducks.com','n','England','New York','Ormond','5123','1790 North Road');
+INSERT INTO Customer Values (cust_seq.nextval, 'James', 'Randi', NULL,NULL,'james@skeptic.org','y','Canada','Colorado','Glasgow','3810','59187 6th Avenue');
+INSERT INTO Customer Values (cust_seq.nextval, 'Jackie', 'Chan', NULL,'0403239627','jackie@stuntmenunited.com.au','n','Djibuti','Texas','Johannesburg','3810','878 Centre Road');
+INSERT INTO Customer Values (cust_seq.nextval, 'William', 'Shakespeare', NULL,NULL,NULL,'n','Australia','Caulfield','Lester','3810','39322 Rockerfeller Circuit');
+INSERT INTO Customer Values (cust_seq.nextval, 'John', 'Powell', '0407374652','0403475256',NULL,'n','Russia','Tennesse','Birmingham','3810','548293 Monash Drive');
+INSERT INTO Customer Values (cust_seq.nextval, 'Jeremy', 'Soule', '040786454287','04033087675454','idontcare@aboutmycustomers.com','n',NULL,NULL,NULL,NULL,NULL);
+
+INSERT INTO Photo Values (photo_seq.nextval,1,'photos/1.jpg');
+INSERT INTO Photo Values (photo_seq.nextval,2,'photos/2.jpg');
+INSERT INTO Photo Values (photo_seq.nextval,3,'photos/3.jpg');
+INSERT INTO Photo Values (photo_seq.nextval,4,'photos/4.jpg');
+
+INSERT INTO PropertyFeature Values (1,1);
+INSERT INTO PropertyFeature Values (1,3);
+INSERT INTO PropertyFeature Values (2,4);
+INSERT INTO PropertyFeature Values (3,5);
+INSERT INTO PropertyFeature Values (4,6);
+
+INSERT INTO Listing Values (list_seq.nextval,1,NULL,1,600,NULL,to_date('03-03-2016','DD-MM-YYYY'),NULL);
+INSERT INTO Listing Values (list_seq.nextval,2,7,2,600,300,to_date('03-03-2016','DD-MM-YYYY'),NULL);
+INSERT INTO Listing Values (list_seq.nextval,3,8,3,800,400,to_date('03-03-2016','DD-MM-YYYY'),NULL);
+INSERT INTO Listing Values (list_seq.nextval,4,1,4,1200,200,to_date('03-03-2016','DD-MM-YYYY'),NULL);
+INSERT INTO Listing Values (list_seq.nextval,5,2,1,5,1,to_date('03-03-2016','DD-MM-YYYY'),NULL);
+INSERT INTO Listing Values (list_seq.nextval,6,NULL,2,600,NULL,to_date('03-03-2016','DD-MM-YYYY'),NULL);
+
+COMMIT;

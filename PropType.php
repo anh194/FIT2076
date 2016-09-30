@@ -1,9 +1,6 @@
 <?php
 	ob_start();
-	session_start();
-	
-	include 'functions.php';
-	login("Property.php");
+
 ?> 
 
 <html>
@@ -28,8 +25,8 @@
 				echo "<td>$row[PTYPE_ID]</td>";
 				echo "<td>$row[PTYPE_NAME]</td>";
 				
-				echo "<td><a href = \"PropTypeModify.php?ptypeid=$row[PTYPE_ID]&Action=Update\">Edit</a></td>";
-				echo "<td><a href = \"PropTypeModify.php?ptypeid=$row[PTYPE_ID]&Action=Delete\">Delete </a></td>";
+				echo "<td><a href = \"PropModify.php?propid=$row[PTYPE_ID]&Action=Update\">Edit</a></td>";
+				echo "<td><a href = \"PropModify.php?propid=$row[PTYPE_ID]&Action=Delete\">Delete </a></td>";
 				echo "</tr>";
 			}
 		?>

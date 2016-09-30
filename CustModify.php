@@ -39,6 +39,9 @@
 			case "ConfirmDelete":
 				ConfirmDel();
 				break;
+			case "Add":
+				Add();
+				break;
 		}
 	}
 	oci_close($conn);
@@ -57,7 +60,7 @@
 		
 		?>
 		<form method = "post" action = "CustModify.php?custid=<?php echo $custid;?>&Action=ConfirmUpdate">
-			<center>Update<br/></center>
+			<center>Testing<br/></center>
 			
 			<table align ="center" cellpadding="3">
 			
@@ -126,7 +129,7 @@
 			<table align="center">
 				<tr>
 				<td><input type = "submit" value = "Update Customer"></td>
-				<td><input type = "button" value = "Return to List" onclick="window.location.href='Customer.php';"/></td>
+				<td><input type = "button" value = "Return to List" onclick="window.location.href='customers.php';"/></td>
 				</tr>
 			</table>
 		</form>
@@ -137,7 +140,7 @@
 	{
 		global $conn;
 		global $custid;
-		
+
 		$query="UPDATE Customer set CUST_STREET = '$_POST[cust_street]',
 		CUST_POSTCODE = '$_POST[cust_postcode]',
 		CUST_CITY = '$_POST[cust_city]',
@@ -168,6 +171,9 @@
 			if(window.confirm(text))
 			{
 				window.location='CustModify.php?custid=<?php echo $custid; ?>&Action=ConfirmDelete';
+			}else
+			{
+				window.location='customers.php';
 			}
 		</script>
 		</center><?php
@@ -185,3 +191,102 @@
 		exit;
 	}
 ?>
+
+	<?php
+	function Add()
+	{
+	?>
+		<form method = "post" action = "CustModify.php?Action=ConfirmAdd">
+			<center>Add<br/></center>
+			
+			<table align ="center" cellpadding="3">
+				
+				<tr>
+					<td><b>Customer First Name</b></td>
+					<td><input type="text" name="cust_fname" size="30"></td>
+				</tr>
+				
+				<tr>
+					<td><b>Customer Last Name</b></td>
+					<td><input type="text" name="cust_lname" size="30"></td>
+				</tr>
+				
+				<tr>
+					<td><b>Customer Home Phone</b></td>
+					<td><input type="text" name="cust_homephone" size="30"></td>
+				</tr>
+
+				<tr>
+					<td><b>Customer Mobile Phone</b></td>
+					<td><input type="text" name="cust_mobilephone" size="30"></td>
+				</tr>
+				
+				<tr>
+					<td><b>Customer Email</b></td>
+					<td><input type="text" name="cust_email" size="30"></td>
+				</tr>
+
+				<tr>
+					<td><b>Customer Mailing list</b></td>
+					<td><input type="text" name="cust_mailinglist" size="30"></td>
+				</tr>
+
+				<tr>
+					<td><b>Customer Country</b></td>
+					<td><input type="text" name="cust_country" size="30"></td>
+				</tr>
+
+				<tr>
+					<td><b>Customer State</b></td>
+					<td><input type="text" name="cust_state" size="30"></td>
+				</tr>
+
+				<tr>
+					<td><b>Customer City</b></td>
+					<td><input type="text" name="cust_city" size="30"></td>
+				</tr>
+
+				<tr>
+					<td><b>Customer Postcode</b></td>
+					<td><input type="text" name="cust_postcode" size="30"></td>
+				</tr>
+
+				<tr>
+					<td><b>Customer Street</b></td>
+					<td><input type="text" name="cust_street" size="30"></td>
+				</tr>
+
+			</table> <br/>
+
+			<table align="center">
+				<tr>
+				<td><input type = "submit" value = "Add Customer"></td>
+				<td><input type = "button" value = "Return to List" onclick="window.location.href='customers.php';"/></td>
+				</tr>
+			</table>
+		</form>
+	<?php
+	}
+	function ConfirmAdd()
+	{
+		$query="INSERT INTO Customer 
+		VALUES ((cust_no_seq.nextval, '$_POST[cust_street]', '$_POST[cust_postcode]', '$_POST[cust_city]', '$_POST[cust_state]',
+		'$_POST[cust_country]', '$_POST[cust_mailinglist]', '$_POST[cust_email]', '$_POST[cust_mobilephone]', '$_POST[cust_homephone]',
+		'$_POST[cust_lname]', '$_POST[cust_fname]')" ;
+		$stmt = oci_parse($conn,$query);
+		if(@oci_execute($stmt));
+		{
+		?>
+		<script language="JavaScript">
+			alert("Customer record successfully added to database");
+		</script>
+		<?php
+		}
+		oci_execute($stmt);
+		oci_free_statement($stmt);
+		header("Location: customers.php");
+		exit;
+		
+	}
+
+	

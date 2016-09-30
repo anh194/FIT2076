@@ -56,12 +56,14 @@
 				echo "<td><a href = \"custModify.php?custid=$custRow[CUST_ID]&Action=Delete\">Delete </a></td>";
 				echo "</tr>";
 			}
-			
+		?>
+			<a href = "AddClient.php">Add </a>
+		<?php
 			oci_free_statement($custStmt);
 			//oci_free_statement($typeStmt);
 			oci_close($conn);
-			
 		?>
 		</table>
+		 
 	</body>
 </html>

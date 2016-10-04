@@ -19,8 +19,7 @@
 	else
 	{
 		$upfile = "property_images/".$_FILES["userfile"]["name"];
-		echo $upfile;
-		/*
+
 		if (!move_uploaded_file($_FILES["userfile"]["tmp_name"],$upfile))
 		{
 			echo "ERROR: Could not move file into directory";
@@ -32,6 +31,5 @@
 			echo "File Size: " .$_FILES["userfile"]["size"]. "<br />";
 			echo "File Type: " .$_FILES["userfile"]["type"]. "<br />"; 
 		}
-		*/
 	}
 ?>

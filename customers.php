@@ -3,7 +3,6 @@
 	session_start();
 	
 	include 'functions.php';
-	login("custerty.php");
 			
 ?>
 	
@@ -58,6 +57,7 @@
 			}
 		?>
 			<a href = "AddClient.php">Add </a>
+			<a href = "Email.php">Email </a>
 		<?php
 			oci_free_statement($custStmt);
 			//oci_free_statement($typeStmt);

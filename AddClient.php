@@ -1,7 +1,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>What a ***** language</title>
+<title></title>
 </head>
 
 <body>

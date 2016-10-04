@@ -57,8 +57,9 @@
 				echo "</tr>";
 			}
 		?>
-			<a href = "AddClient.php">Add </a>
-			<a href = "Email.php">Email </a>
+			<a href = "AddClient.php">Add </a><br>
+			<a href = "Email.php">Email </a><br>
+			<a href = "pdf.php">PDF </a><br>
 		<?php
 			oci_free_statement($custStmt);
 			//oci_free_statement($typeStmt);

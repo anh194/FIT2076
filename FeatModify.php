@@ -1,15 +1,27 @@
 <?php
 	ob_start();
 	session_start();
+	include 'functions.php';
 	
-	if (isset($_GET["featid"]) && isset($_GET["Action"]))
+	if (isset($_GET["featid"]))
 	{
 		$_SESSION["featid"] = $_GET["featid"];
+	}
+	
+	if (isset($_GET["Action"]))
+	{
 		$_SESSION["Action"] = $_GET["Action"];
 	}
-
-	$featid = $_SESSION["featid"];
-	$Action = $_SESSION["Action"];
+	
+	if (isset($_SESSION["featid"]))
+	{
+		$featid = $_SESSION["featid"];
+	}
+		
+	if (isset($_SESSION["Action"]))
+	{
+		$Action = $_SESSION["Action"];
+	}
 ?>
 	
 <html>
@@ -18,12 +30,14 @@
 	include("connection.php");
 	$conn = oci_connect($UName,$PWord,$DB) or die ("Could not connect to database.");
 	
-	$query="SELECT * FROM Feature WHERE feat_id = ".$featid;
-	$stmt = oci_parse($conn,$query);
-	oci_execute($stmt);
-	$row = oci_fetch_array($stmt);
-	
-	include 'functions.php';
+	if (isset($featid))
+	{
+		$query="SELECT * FROM Feature WHERE feat_id = ".$featid;
+		$stmt = oci_parse($conn,$query);
+		oci_execute($stmt);
+		$row = oci_fetch_array($stmt);
+	}
+
 	if (login("FeatModify.php"))
 	{
 		switch ($Action)
@@ -39,6 +53,12 @@
 				break;
 			case "ConfirmDelete":
 				ConfirmDel();
+				break;
+			case "Create":
+				Create();
+				break;
+			case "ConfirmCreate":
+				ConfirmCreate();
 				break;
 		}
 	}
@@ -118,7 +138,7 @@
 		</center><?php
 	}
 	
-	function COnfirmDel()
+	function ConfirmDel()
 	{
 		global $conn;
 		global $featid;
@@ -128,6 +148,48 @@
 		oci_execute($stmt);
 		oci_free_statement($stmt);
 
+		header("Location: Feature.php");
+		exit;
+	}
+	
+	function Create()
+	{
+		?>
+		<form method = "post" action = "FeatModify.php?&Action=ConfirmCreate">
+			<center>New Feature<br/></center>
+			
+			<table align ="center" cellpadding="3">
+				
+				<tr>
+					<td><b>Feature Name</b></td>
+					<td><input type="text" name="featname" size="30"></td>
+				</tr>
+				
+				<tr>
+					<td><b>Feature Description</b></td>
+					<td><input type="text" name="featdescription" size="30"></td>
+				</tr>
+				
+			</table> <br/>
+
+			<table align="center">
+				<tr>
+				<td><input type = "submit" value = "Create Feature"></td>
+				<td><input type = "button" value = "Return to List" onclick="window.location.href='Feature.php';"/></td>
+				</tr>
+			</table>
+		</form>
+		<?php
+	}
+	
+	function ConfirmCreate()
+	{
+		global $conn;
+		$query = "INSERT INTO Feature VALUES (feat_seq.nextval,'$_POST[featname]','$_POST[featdescription]')";
+		$stmt = oci_parse($conn,$query);
+		oci_execute($stmt);
+		oci_free_statement($stmt);
+		
 		header("Location: Feature.php");
 		exit;
 	}

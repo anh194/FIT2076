@@ -3,6 +3,7 @@
 	session_start();
 	
 	include 'functions.php';
+	login("customers.php");	
 			
 ?>
 	

@@ -2,14 +2,26 @@
 	ob_start();
 	session_start();
 	
-	if (isset($_GET["ptypeid"]) && isset($_GET["Action"]))
+		if (isset($_GET["ptypeid"]))
 	{
 		$_SESSION["ptypeid"] = $_GET["ptypeid"];
+	}
+	
+	if (isset($_GET["Action"]))
+	{
 		$_SESSION["Action"] = $_GET["Action"];
 	}
+	
+	if (isset($_SESSION["ptypeid"]))
+	{
+		$ptype_id = $_SESSION["ptypeid"];
+	}
+		
+	if (isset($_SESSION["Action"]))
+	{
+		$Action = $_SESSION["Action"];
+	}
 
-	$ptypeid = $_SESSION["ptypeid"];
-	$Action = $_SESSION["Action"];
 ?>
 
 <html>
@@ -18,10 +30,13 @@
 	include("connection.php");
 	$conn = oci_connect($UName,$PWord,$DB) or die ("Could not connect to database.");
 	
-	$query="SELECT * FROM PropertyType WHERE ptype_id = ".$ptypeid;
-	$stmt = oci_parse($conn,$query);
-	oci_execute($stmt);
-	$row = oci_fetch_array($stmt);
+	if (isset($ptype_id))
+	{
+		$query="SELECT * FROM PropertyType WHERE ptype_id = ".$ptype_id;
+		$stmt = oci_parse($conn,$query);
+		oci_execute($stmt);
+		$row = oci_fetch_array($stmt);
+	}
 	
 	include 'functions.php';
 	if (login("PropTypeModify.php"))
@@ -40,6 +55,12 @@
 			case "ConfirmDelete":
 				ConfirmDel();
 				break;
+			case "Create":
+				Create();
+				break;
+			case "ConfirmCreate":
+				ConfirmCreate();
+				break;
 		}
 	}
 	?>
@@ -51,20 +72,18 @@
 <?php
 	function Update()
 	{
-		global $ptypeid;
+		global $ptype_id;
 		global $row;
 		
 		?>
-		<form method = "post" action = "PropTypeModify.php?ptypeid=<?php echo $ptypeid;?>&Action=ConfirmUpdate">
+		<form method = "post" action = "PropTypeModify.php?ptypeid=<?php echo $ptype_id;?>&Action=ConfirmUpdate">
 			<center>Update<br/></center>
 			
 			<table align ="center" cellpadding="3">
-			
 				<tr>
 					<td><b>Property Type ID</b></td>
 					<td><?php echo $row["PTYPE_ID"];?></td>
 				</tr>
-				
 				<tr>
 					<td><b>Property Type Name</b></td>
 					<td><input type="text" name="ptypename" size="30" value="<?php echo $row["PTYPE_NAME"]; ?>"></td>
@@ -74,8 +93,8 @@
 
 			<table align="center">
 				<tr>
-					<td><input type = "submit" value = "Update Type"></td>
-					<td><input type = "button" value = "Return to List" onclick="window.location.href='PropTypeModify.php';"/></td>
+					<td><input type = "submit" value = "Confirm Update" onclick = window.location.href='PropTypeModify.php?ptypeid=<?php echo $ptype_id;?>&Action=ConfirmDelete'></td>
+					<td><input type = "button" value = "Return to List" onclick="window.location.href='PropType.php';"/></td>
 				</tr>
 			</table>
 		</form>
@@ -86,46 +105,118 @@
 	function ConfirmUpdate()
 	{
 		global $conn;
-		global $ptypeid;
+		global $ptype_id;
 		
 		$query="UPDATE PropertyType SET ptype_name = '$_POST[ptypename]'
-		WHERE ptype_id = ".$ptypeid;
+		WHERE ptype_id = ".$ptype_id;
 		$stmt = oci_parse($conn,$query);
 		oci_execute($stmt);
 		oci_free_statement($stmt);
 
-		header("Location: PropType.php");
-		exit;
+		?>
+		<script language="javascript"> 
+			window.alert("Type successfully updated!");
+			window.location = 'PropType.php';
+		</script>
+		<?php
 	}
 	
 	function Del()
 	{
-		global $ptypeid;
-		
+		global $row;
+		global $ptype_id;
 		?>
 		<center>
+		<!--
 		<script language="javascript"> 
-			var text =  "Are you sure you want to delete <?php echo $ptypeid;?>?"
+			var text =  "Are you sure you want to delete <?php //echo $ptype_id;?>?"
 			if(window.confirm(text))
 			{
-				window.location='PropTypeModify.php?ptypeid=<?php echo $ptypeid; ?>&Action=ConfirmDelete';
+				window.location='PropTypeModify.php?ptypeid=<?php //echo $ptype_id; ?>&Action=ConfirmDelete';
 			}
 		</script>
-		</center><?php
+		-->
+		
+			<b>Are you sure you want to delete the following record?</b>
+			<table align ="center" cellpadding="3">
+				<tr> 
+					<td><b>ID</b></td>
+					<td><?php echo $ptype_id;?></td>
+				</tr>
+				<tr>
+					<td><b>Type</b></td>
+					<td><?php echo $row["PTYPE_NAME"];?></td>
+				</tr>
+			</table>
+			
+			<table align="center">
+				<tr>
+					<td><input type = "button" value = "Confirm Delete" onclick="window.location.href='PropTypeModify.php?ptypeid=<?php echo $ptype_id; ?>&Action=ConfirmDelete';"></td>
+					<td><input type = "button" value = "Return to List" onclick="window.location.href='PropType.php';"/></td>
+				</tr>
+			</table>
+		
+		</center>
+		<?php
 	}
 	
-	function COnfirmDel()
+	function ConfirmDel()
 	{
 		global $conn;
-		global $ptypeid;
+		global $ptype_id;
 		
-		$query="DELETE FROM PropertyType WHERE ptype_id = ".$ptypeid;
+		$query="DELETE FROM PropertyType WHERE ptype_id = ".$ptype_id;
+		$stmt = oci_parse($conn,$query);
+		oci_execute($stmt);
+		oci_free_statement($stmt);
+		?>
+		<script language="javascript"> 
+			window.alert("Delete was successful!");
+			window.location = 'PropType.php';
+		</script>
+		<?php
+	}
+	
+	function Create()
+	{
+		?>
+		<form method = "post" action = "PropTypeModify.php?Action=ConfirmCreate">
+			<center>New Property Type<br/></center>
+			
+			<table align ="center" cellpadding="3">
+				
+				<tr>
+					<td><b>Property Type Name</b></td>
+					<td><input type="text" name="ptypename" size="30"></td>
+				</tr>
+				
+			</table> <br/>
+
+			<table align="center">
+				<tr>
+					<td><input type = "submit" value = "Create Type"></td>
+					<td><input type = "button" value = "Return to List" onclick="window.location.href='PropType.php';"/></td>
+				</tr>
+			</table>
+		</form>
+
+		<?php
+	}
+	
+	function ConfirmCreate()
+	{
+		global $conn;
+		$query="INSERT INTO PropertyType VALUES (ptype_seq.nextval,'$_POST[ptypename]')";
 		$stmt = oci_parse($conn,$query);
 		oci_execute($stmt);
 		oci_free_statement($stmt);
 
-		header("Location: PropType.php");
-		exit;
+		?>
+		<script language="javascript"> 
+			window.alert("Type successfully created!");
+			window.location = 'PropType.php';
+		</script>
+		<?php
 	}
 ?>
 

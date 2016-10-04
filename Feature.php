@@ -3,11 +3,12 @@
 	session_start();
 	
 	include 'functions.php';
-	login("PropFeature.php");
+	login("Feature.php");
 ?> 
 
 <html>
 	<body>
+		<?php echo "<a href = \"FeatModify.php?Action=Create\">Create New</a>" ?>
 		<table border = "1">
 			<tr>
 				<th>ID</th>

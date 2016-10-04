@@ -8,6 +8,7 @@
 
 <html>
 	<body>
+		<?php echo "<a href = \"PropTypeModify.php?Action=Create\">Create New</a>" ?>
 		<table border = "1">
 			<tr>
 				<th>ID</th>

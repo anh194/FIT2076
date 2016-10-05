@@ -41,6 +41,7 @@ Select customer<br>
 	<b>Message</b><br>
 	<textarea id="message" class="text" cols="86" rows ="20" name="message"></textarea><br>
 	<input type = "submit" value = "send email"><br>
+	<a href = "customers.php">Back to customer menu</a>
 	</form>
 <?php
 	

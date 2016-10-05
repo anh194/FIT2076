@@ -67,9 +67,15 @@
 				</tr>
 				<?php
 			}
+				?>
+				<form method = "post" action="search.php">
+					<input type="text" name="keyword" />
+    				<input type="submit" value="Search" />
+				</form>
+			<?php
 			oci_free_statement($propStmt);
 			oci_close($conn);
-		?>
+			?>
 		</table>
 	</body>
 </html>

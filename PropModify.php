@@ -43,7 +43,7 @@
 		switch ($Action)
 		{
 			case "Update": 
-				Update($row);
+				showPropertyForm();
 				break;
 			case "ConfirmUpdate":
 				ConfirmUpdate();
@@ -55,13 +55,10 @@
 				ConfirmDel();
 				break;
 			case "Create":
-				Create();
+				showPropertyForm();
 				break;
 			case "ConfirmCreate":
 				ConfirmCreate();
-				break;
-			case "View":
-				View();
 				break;
 		}
 	}
@@ -72,130 +69,7 @@
 
 <!-- FUNCTIONS -->
 
-<?php
-
-	function Update()
-	{
-		global $conn;
-		global $propid;
-		global $row;
-		
-		?>
-		<form method = "post" action = "PropModify.php?propid=<?php echo $propid;?>&Action=ConfirmUpdate">
-			<center>Update Property<br/></center>
-			
-			<table align ="center" cellpadding="3">
-			
-				<tr>
-					<td><b>ID</b></td>
-					<td><?php echo $row["PROP_ID"];?></td>
-				</tr>
-				
-				<tr>
-					<td><b>Address</b></td>
-					<td><input type="text" name="propaddress" size="30" value="<?php echo $row["PROP_STREET"]; ?>"></td>
-				</tr>
-				
-				<tr>
-					<td><b>Country</b></td>
-					<td><input type="text" name="propcountry" size="30" value="<?php echo $row["PROP_COUNTRY"]; ?>"></td>
-				</tr>
-				
-				<tr>
-					<td><b>State</b></td>
-					<td><input type="text" name="propstate" size="30" value="<?php echo $row["PROP_STATE"]; ?>"></td>
-				</tr>
-				
-				<tr>
-					<td><b>City</b></td>
-					<td><input type="text" name="propcity" size="30" value="<?php echo $row["PROP_CITY"]; ?>"></td>
-				</tr>
-				
-				<tr>
-					<td><b>Postcode</b></td>
-					<td><input type="text" name="proppostcode" size="30" value="<?php echo $row["PROP_POSTCODE"]; ?>"></td>
-				</tr>
-				
-				<tr>
-					<td><b>Property Type</b></td>
-					<td>
-						<?php
-						$query = "SELECT * FROM PropertyType ORDER BY ptype_name";
-						$stmt = oci_parse($conn,$query);
-						oci_execute($stmt);
-						?>
-						<select name="PropertyTypeList">
-							<?php
-							while ($ptypeRow = oci_fetch_array($stmt))
-							{
-								?>		
-								<option value="<?php echo $ptypeRow["PTYPE_ID"]; ?>"
-									<?php if ($row["PROP_TYPE"] == $ptypeRow["PTYPE_ID"]) echo 'selected';?>>
-									<?php echo $ptypeRow["PTYPE_NAME"];?>
-								</option>
-								<?php
-							}
-							oci_free_statement($stmt);
-							?>
-						</select>
-					</td>
-				</tr>
-				
-				<tr>
-					<td><b>Bedrooms</b></td>
-					<td>
-						<select name="propbedrooms">
-							<?php
-							for ($i=1; $i < 10; $i++)
-							{
-								?>
-								<option value="<?php echo $i;?>" 
-									<?php if ($row["PROP_BEDROOMS"] == $i) echo 'selected';?>>
-									<?php echo $i.' beds'; ?>
-								</option>
-								<?php
-							}
-							?>
-						</select>
-					</td>
-				</tr>
-				
-				<tr>
-					<td><b>Bathrooms</b></td>
-					<td>
-						<select name="propbathrooms">
-							<?php
-							for ($i=1; $i < 10; $i++)
-							{
-								?>
-								<option value="<?php echo $i;?>" 
-									<?php if ($row["PROP_BATHROOMS"] == $i) echo 'selected';?>>
-									<?php echo $i.' bathrooms'; ?>
-								</option>
-								<?php
-							}
-							?>
-						</select>
-					</td>
-				</tr>
-
-				<tr>
-					<td><b>Property Description</b></td>
-					<td><textarea type="text" name="propdescription" size="30"><?php echo $row["PROP_DESCRIPTION"]; ?></textarea></td>
-				</tr>
-
-			</table> <br/>
-
-			<table align="center">
-				<tr>
-				<td><input type = "submit" value = "Update Property"></td>
-				<td><input type = "button" value = "Return to List" onclick="window.location.href='Property.php';"/></td>
-				</tr>
-			</table>
-		</form>
-
-		<?php
-	}
+<?php	
 
 	function ConfirmUpdate()
 	{
@@ -216,6 +90,22 @@
 		$stmt = oci_parse($conn,$query);
 		oci_execute($stmt);
 		oci_free_statement($stmt);
+		
+		//delete any existing features
+		$query = "DELETE FROM PropertyFeature WHERE pf_property = ".$propid;
+		$stmt = oci_parse($conn,$query);
+		oci_execute($stmt);
+		oci_free_statement($stmt);
+
+		//for each checked feature
+		foreach($_POST['feats'] as $feature)
+		{
+			//add property feature
+			$query = "INSERT INTO PropertyFeature VALUES (".$propid.",".$feature.")";
+			$stmt = oci_parse($conn,$query);
+			oci_execute($stmt);	
+			oci_free_statement($stmt);
+		}
 
 		header("Location: Property.php");
 		exit;
@@ -251,94 +141,6 @@
 		exit;
 	}
 	
-	function Create()
-	{
-		global $conn;
-		?>
-		<form method = "post" action = "PropModify.php?&Action=ConfirmCreate">
-			<center>New Property<br/></center>
-			
-			<table align ="center" cellpadding="3">
-			
-				<tr>
-					<td><b>Address</b></td>
-					<td><input type="text" name="propstreet" size="30"></td>
-				</tr>
-			
-				<tr>
-					<td><b>Country</b></td>
-					<td><input type="text" name="propcountry" size="30"></td>
-				</tr>
-				
-				<tr>
-					<td><b>State</b></td>
-					<td><input type="text" name="propstate" size="30"></td>
-				</tr>
-				
-				<tr>
-					<td><b>City</b></td>
-					<td><input type="text" name="propcity" size="30"></td>
-				</tr>
-				
-				<tr>
-					<td><b>Postcode</b></td>
-					<td><input type="text" name="proppostcode" size="30"></td>
-				</tr>
-				
-				<tr>
-					<td><b>Type</b></td>
-					<td>
-						<?php
-						$query = "SELECT * FROM PropertyType ORDER BY ptype_name";
-						$stmt = oci_parse($conn,$query);
-						oci_execute($stmt);
-						?>
-						
-						<form>
-							<select name="proptype">
-								<?php
-								while ($ptypeRow = oci_fetch_array($stmt))
-								{
-									?>		
-									<option value="<?php echo $ptypeRow["PTYPE_ID"]; ?>">
-									<?php echo $ptypeRow["PTYPE_NAME"];?>
-									</option>
-									<?php
-								}
-								?>
-							</select>
-						</form>
-					</td>
-				</tr>
-
-				<tr>
-					<td><b>Bedrooms</b></td>
-					<td><input type="text" name="propbedrooms" size="30"></td>
-				</tr>
-				
-				<tr>
-					<td><b>Bathrooms</b></td>
-					<td><input type="text" name="propbathrooms" size="30"></td>
-				</tr>
-
-				<tr>
-					<td><b>Description</b></td>
-					<td><input type="text" name="propdescription" size="30"></td>
-				</tr>
-				
-				
-			</table> <br/>
-
-			<table align="center">
-				<tr>
-				<td><input type = "submit" value = "Create Property"></td>
-				<td><input type = "button" value = "Return to List" onclick="window.location.href='Property.php';"/></td>
-				</tr>
-			</table>
-		</form>
-		<?php
-	}
-	
 	function ConfirmCreate()
 	{
 		global $conn;
@@ -361,74 +163,226 @@
 		exit;
 	}
 	
-	function View()
+	function showPropertyForm()
 	{
 		global $conn;
 		global $propid;
 		global $row;
+		global $Action;
+		
+		if ($Action == "Update")
+		{
+			$nextAction = "ConfirmUpdate";
+			$propstreet = $row["PROP_STREET"];
+			$propcountry = $row["PROP_COUNTRY"];
+			$propstate = $row["PROP_STATE"];
+			$propcity = $row["PROP_CITY"];
+			$proppostcode = $row["PROP_POSTCODE"];
+			$proptype = $row["PROP_TYPE"];
+			$propbedrooms = $row["PROP_BEDROOMS"];
+			$propbathrooms = $row["PROP_BATHROOMS"];
+			$propdescription = $row["PROP_DESCRIPTION"];
+		}
+		else if ($Action == "Create")
+		{
+			$nextAction = "ConfirmCreate";
+			$propstreet = "";
+			$propcountry = "";
+			$propstate = "";
+			$propcity = "";
+			$proppostcode = "";
+			$proptype = "";
+			$propbedrooms = "";
+			$propbathrooms = "";
+			$propdescription = "";
+		}
+		
 		?>
-		<center>View Property<br/></center>
+		<form method = "post" action = "PropModify.php?propid=<?php echo $propid;?>&Action=<?php echo $nextAction; ?>">
+			<h1>Property </h1>
+			<h2>Modify</h2>
 			
-			<table align ="center" cellpadding="3">
+			<table>
+				<tr>
+				<td><input type = "submit" value = "<?php echo $Action; ?>"></td>
+				<td><input type = "button" value = "Delete" onclick="window.location.href='PropModify.php?propid=<?php echo $propid; ?>&Action=Delete';"/></td>
+				<td><input type = "button" value = "Return to List" onclick="window.location.href='Property.php';"/></td>
+				</tr>
+			</table> <br/>
+			
+			<table cellpadding="3">
 			
 				<tr>
 					<td><b>ID</b></td>
-					<td><?php echo $row["PROP_ID"];?></td>
+					<td><?php echo $propid;?></td>
 				</tr>
 				
 				<tr>
 					<td><b>Address</b></td>
-					<td><?php echo $row["PROP_STREET"]; ?></td>
+					<td><input type="text" name="propaddress" size="30" value="<?php echo $propstreet; ?>"></td>
 				</tr>
 				
 				<tr>
 					<td><b>Country</b></td>
-					<td><?php echo $row["PROP_COUNTRY"]; ?></td>
+					<td><input type="text" name="propcountry" size="30" value="<?php echo $propcountry ?>"></td>
 				</tr>
 				
 				<tr>
 					<td><b>State</b></td>
-					<td><?php echo $row["PROP_STATE"]; ?></td>
+					<td><input type="text" name="propstate" size="30" value="<?php echo $propstate; ?>"></td>
 				</tr>
 				
 				<tr>
 					<td><b>City</b></td>
-					<td><?php echo $row["PROP_CITY"]; ?></td>
+					<td><input type="text" name="propcity" size="30" value="<?php echo $propcity; ?>"></td>
 				</tr>
 				
 				<tr>
 					<td><b>Postcode</b></td>
-					<td><?php echo $row["PROP_POSTCODE"]; ?></td>
+					<td><input type="text" name="proppostcode" size="30" value="<?php echo $proppostcode; ?>"></td>
 				</tr>
 				
 				<tr>
 					<td><b>Type</b></td>
-					<td><?php echo $row["PROP_TYPE"]; ?></td>
+					<td><?php showTypeOptions($proptype); ?></td>
 				</tr>
 				
 				<tr>
 					<td><b>Bedrooms</b></td>
-					<td><?php echo $row["PROP_BEDROOMS"]; ?></td>
+					<td><?php showBedroomOptions($propbedrooms); ?></td>
 				</tr>
 				
 				<tr>
 					<td><b>Bathrooms</b></td>
-					<td><?php echo $row["PROP_BATHROOMS"]; ?></td>
+					<td><?php showBathroomOptions($propbathrooms); ?></td>
 				</tr>
 
 				<tr>
 					<td><b>Description</b></td>
-					<td><?php echo $row["PROP_DESCRIPTION"]; ?></td>
+					<td><textarea type="text" name="propdescription" size="30"><?php echo $propdescription; ?></textarea></td>
 				</tr>
 
 			</table> <br/>
-
-			<table align="center">
-				<tr>
-				<td><input type = "button" value = "Edit Property" onclick="window.location.href='Property.php?prop_id='"></td>
-				<td><input type = "button" value = "Return to List" onclick="window.location.href='Property.php';"/></td>
-				</tr>
-			</table>
+			
+			<h2>Features</h2>
+			
+			<?php showPropertyFeatures($propid); ?>
+			
+			
+		</form>
 		<?php
 	}
+	
+	function showTypeOptions($proptype)
+	{
+		global $conn;
+		$query = "SELECT * FROM PropertyType ORDER BY ptype_name";
+		$stmt = oci_parse($conn,$query);
+		oci_execute($stmt);
+		?>
+		<select name="PropertyTypeList">
+			<?php
+			while ($ptypeRow = oci_fetch_array($stmt))
+			{
+				?>		
+				<option value="<?php echo $ptypeRow["PTYPE_ID"]; ?>"
+					<?php if ($proptype == $ptypeRow["PTYPE_ID"]) echo 'selected';?>>
+					<?php echo $ptypeRow["PTYPE_NAME"];?>
+				</option>
+				<?php
+			}
+			oci_free_statement($stmt);
+			?>
+		</select>
+		<?php
+	}
+	
+	function showBedroomOptions($propbedrooms)
+	{
+		?>
+		<select name="propbedrooms">
+			<?php
+			for ($i=1; $i < 10; $i++)
+			{
+				?>
+				<option value="<?php echo $i;?>" 
+					<?php if ($propbedrooms == $i) echo 'selected';?>>
+					<?php echo $i.' beds'; ?>
+				</option>
+				<?php
+			}
+			?>
+		</select>
+		<?php
+	}
+	
+	function showBathroomOptions($propbathrooms)
+	{
+		?>
+		<select name="propbathrooms">
+			<?php
+			for ($i=1; $i < 10; $i++)
+			{
+				?>
+				<option value="<?php echo $i;?>" 
+					<?php if ($propbathrooms == $i) echo 'selected';?>>
+					<?php echo $i.' bathrooms'; ?>
+				</option>
+				<?php
+			}
+			?>
+		</select>
+		<?php
+	}
+	
+	function showPropertyFeatures()
+	{
+		global $conn;
+		global $Action;
+		global $propid;
+		?>
+		<table cellpadding="3">
+			<?php
+				if ($Action == "Update")
+				{
+					$query = "SELECT * From PropertyFeature WHERE pf_property = ".$propid;
+					$stmt = oci_parse($conn,$query);
+					oci_execute($stmt);
+					
+					$propFeatures = array();
+					while ($propFeatRow = oci_fetch_array($stmt))
+					{
+						array_push($propFeatures,$propFeatRow["PF_FEATURE"]);
+					}
+					oci_free_statement($stmt);
+				}
+				
+				$query = "SELECT * FROM Feature ORDER BY feat_id";
+				$stmt = oci_parse($conn,$query);
+				oci_execute($stmt);
+				
+				while ($featRow = oci_fetch_array($stmt))
+				{
+					?>		
+					<tr> 
+					<td>
+					<input 
+						type="checkbox" 
+						name="feats[]" 
+						value="<?php echo $featRow["FEAT_ID"]; ?>" 
+						<?php if(isset($propFeatures) && in_array($featRow["FEAT_ID"],$propFeatures)){echo "checked";}?>
+					>
+						<?php echo $featRow["FEAT_NAME"]; ?> 
+					</input>
+					</td>
+					</tr>
+					<?php
+					
+				}
+				oci_free_statement($stmt);
+			?>
+			</table><br/>
+			<?php
+	}
+	
 ?>
